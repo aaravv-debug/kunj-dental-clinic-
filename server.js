@@ -48,11 +48,20 @@ function handler(req, res) {
   fs.readFile(filePath, (err, data) => {
     if (err) {
       if (err.code === 'ENOENT') {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('404 Not Found');
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          error: 'ENOENT',
+          reqUrl: req.url,
+          cleanPath,
+          filePath,
+          dirname: __dirname,
+          cwd: process.cwd(),
+          filesInDirname: fs.existsSync(__dirname) ? fs.readdirSync(__dirname) : [],
+          filesInCwd: fs.existsSync(process.cwd()) ? fs.readdirSync(process.cwd()) : []
+        }, null, 2));
       } else {
         res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('500 Server Error');
+        res.end('500 Server Error: ' + err.message);
       }
       return;
     }
