@@ -3,76 +3,53 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = 8080;
-const MIME_TYPES = {
-  '.html': 'text/html; charset=UTF-8',
-  '.css': 'text/css; charset=UTF-8',
-  '.js': 'application/javascript; charset=UTF-8',
-  '.json': 'application/json; charset=UTF-8',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.webp': 'image/webp',
-  '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon'
-};
+
+// Explicit path references ensure Vercel Node File Trace bundles both files
+const INDEX_PATH = path.join(__dirname, 'index.html');
+const TREATMENTS_PATH = path.join(__dirname, 'treatments.html');
+
+let indexContent = '';
+let treatmentsContent = '';
+
+try {
+  indexContent = fs.readFileSync(INDEX_PATH, 'utf8');
+} catch (e) {
+  try {
+    indexContent = fs.readFileSync(path.join(process.cwd(), 'index.html'), 'utf8');
+  } catch (err) {
+    indexContent = '<h1>Index not found</h1>';
+  }
+}
+
+try {
+  treatmentsContent = fs.readFileSync(TREATMENTS_PATH, 'utf8');
+} catch (e) {
+  try {
+    treatmentsContent = fs.readFileSync(path.join(process.cwd(), 'treatments.html'), 'utf8');
+  } catch (err) {
+    treatmentsContent = '<h1>Treatments not found</h1>';
+  }
+}
 
 function handler(req, res) {
-  let reqPath = req.url.split('?')[0];
-  if (reqPath === '/' || reqPath === '') {
-    reqPath = '/index.html';
-  }
+  const reqUrl = req.url.split('?')[0].split('#')[0];
 
-  let cleanPath = reqPath;
-
-  // Handle clean URLs and directory mapping
-  if (cleanPath === '/treatments' || cleanPath === '/treatments/') {
-    cleanPath = '/treatments.html';
-  }
-
-  let filePath = path.join(__dirname, cleanPath);
-  if (!fs.existsSync(filePath)) {
-    filePath = path.join(process.cwd(), cleanPath);
-  }
-  if (!fs.existsSync(filePath)) {
-    filePath = path.join(process.cwd(), 'public', cleanPath);
-  }
-  if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
-    filePath = path.join(filePath, 'index.html');
-  }
-  if (!fs.existsSync(filePath) && fs.existsSync(filePath + '.html')) {
-    filePath = filePath + '.html';
-  }
-
-  const ext = path.extname(filePath).toLowerCase();
-
-  fs.readFile(filePath, (err, data) => {
-    if (err) {
-      if (err.code === 'ENOENT') {
-        res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          error: 'ENOENT',
-          reqUrl: req.url,
-          cleanPath,
-          filePath,
-          dirname: __dirname,
-          cwd: process.cwd(),
-          filesInDirname: fs.existsSync(__dirname) ? fs.readdirSync(__dirname) : [],
-          filesInCwd: fs.existsSync(process.cwd()) ? fs.readdirSync(process.cwd()) : []
-        }, null, 2));
-      } else {
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('500 Server Error: ' + err.message);
-      }
-      return;
-    }
-
-    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+  // Route to treatments page
+  if (reqUrl === '/treatments' || reqUrl === '/treatments.html' || reqUrl === '/treatments/' || reqUrl.startsWith('/treatments')) {
     res.writeHead(200, {
-      'Content-Type': contentType,
+      'Content-Type': 'text/html; charset=UTF-8',
       'Access-Control-Allow-Origin': '*'
     });
-    res.end(data);
+    res.end(treatmentsContent);
+    return;
+  }
+
+  // Default to index page for root or any other document request
+  res.writeHead(200, {
+    'Content-Type': 'text/html; charset=UTF-8',
+    'Access-Control-Allow-Origin': '*'
   });
+  res.end(indexContent);
 }
 
 module.exports = handler;
