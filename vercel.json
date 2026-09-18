@@ -1,13 +1,6 @@
 {
-  "version": 2,
   "cleanUrls": true,
-  "routes": [
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/treatments",
-      "dest": "/treatments.html"
-    }
+  "rewrites": [
+    { "source": "/treatments", "destination": "/treatments.html" }
   ]
 }
