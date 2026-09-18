@@ -1,6 +1,8 @@
 {
   "cleanUrls": true,
-  "rewrites": [
-    { "source": "/treatments", "destination": "/treatments.html" }
-  ]
+  "functions": {
+    "server.js": {
+      "includeFiles": "images/**"
+    }
+  }
 }
