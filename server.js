@@ -23,12 +23,21 @@ function handler(req, res) {
   }
 
   let cleanPath = reqPath;
+
+  // Handle clean URLs and directory mapping
+  if (cleanPath === '/treatments' || cleanPath === '/treatments/') {
+    cleanPath = '/treatments.html';
+  }
+
   let filePath = path.join(__dirname, cleanPath);
   if (!fs.existsSync(filePath)) {
     filePath = path.join(process.cwd(), cleanPath);
   }
   if (!fs.existsSync(filePath)) {
     filePath = path.join(process.cwd(), 'public', cleanPath);
+  }
+  if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+    filePath = path.join(filePath, 'index.html');
   }
   if (!fs.existsSync(filePath) && fs.existsSync(filePath + '.html')) {
     filePath = filePath + '.html';
