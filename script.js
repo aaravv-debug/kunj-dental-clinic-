@@ -6,13 +6,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const navLinks = document.getElementById('navLinks');
 
   if (menuToggle && navLinks) {
-    menuToggle.addEventListener('click', () => {
+    menuToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
       navLinks.classList.toggle('mobile-active');
       const isExpanded = navLinks.classList.contains('mobile-active');
       menuToggle.setAttribute('aria-expanded', isExpanded);
       menuToggle.innerHTML = isExpanded 
-        ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`
-        : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>`;
+        ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`
+        : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>`;
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+      if (navLinks.classList.contains('mobile-active') && !navLinks.contains(e.target) && !menuToggle.contains(e.target)) {
+        navLinks.classList.remove('mobile-active');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>`;
+      }
     });
 
     // Close on link click
@@ -20,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
       link.addEventListener('click', () => {
         navLinks.classList.remove('mobile-active');
         menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>`;
       });
     });
   }
@@ -119,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const name = form.querySelector('[name="patient_name"]')?.value || 'Guest';
       const phone = form.querySelector('[name="phone"]')?.value || '';
-      const service = form.querySelector('[name="service"]')?.value || 'Consultation';
+      const service = form.querySelector('[name="service"]')?.value || 'General Consultation';
       const date = form.querySelector('[name="date"]')?.value || 'Earliest available';
       const time = form.querySelector('[name="time"]')?.value || 'Morning slot';
 
@@ -147,12 +158,12 @@ document.addEventListener('DOMContentLoaded', () => {
           const modalBody = modal.querySelector('.modal-body');
           if (modalBody) {
             modalBody.innerHTML = `
-              <div class="success-card">
-                <div class="success-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <div class="success-card" style="text-align: center; padding: 24px;">
+                <div class="success-icon" style="width: 56px; height: 56px; border-radius: 50%; background: #ccfbf1; color: #0d9488; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="28" height="28"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 </div>
-                <h3 style="font-family: var(--font-heading); font-size: 1.4rem; color: var(--primary-900); margin-bottom: 8px;">Appointment Request Sent!</h3>
-                <p style="color: var(--neutral-600); font-size: 0.95rem; margin-bottom: 24px;">Dr. Chirag Patel's team will verify and confirm your slot on WhatsApp shortly.</p>
+                <h3 style="font-size: 1.4rem; color: #091e3a; margin-bottom: 8px;">Appointment Request Sent!</h3>
+                <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 24px;">Dr. Chirag Patel's team will verify and confirm your slot on WhatsApp shortly.</p>
                 <button class="btn btn-primary" onclick="location.reload()">Done</button>
               </div>
             `;

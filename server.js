@@ -27,6 +27,9 @@ function handler(req, res) {
   if (!fs.existsSync(filePath)) {
     filePath = path.join(process.cwd(), cleanPath);
   }
+  if (!fs.existsSync(filePath)) {
+    filePath = path.join(process.cwd(), 'public', cleanPath);
+  }
   if (!fs.existsSync(filePath) && fs.existsSync(filePath + '.html')) {
     filePath = filePath + '.html';
   }
